@@ -4,6 +4,12 @@ class Article {
     private $title;
     private $content;
 
+    public function __construct($id,$title,$content){
+        $this->id=$id;
+        $this->title=$title;
+        $this->content=$content;
+    }
+
     public function getId() {
         return $this->id;
     }
