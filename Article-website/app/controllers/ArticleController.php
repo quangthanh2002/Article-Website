@@ -1,5 +1,5 @@
 <?php
-include 'services/AuthorService.php';
+include '../services/ArticleServices.php';
 class ArticleController
 {
     public function index()
