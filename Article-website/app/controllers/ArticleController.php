@@ -37,9 +37,9 @@ class ArticleController
         $article = $articleService->findArticleId($id);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $id = $_POST['txtAutId'];
-            $title = $_POST['txtAutName'];
-            $content = $_POST['txtAutAvt'];
+            $id = $_POST['txtId'];
+            $title = $_POST['txtTitle'];
+            $content = $_POST['txtContent'];
             if (!empty($title) && !empty($content)) {
                 $result = $articleService->editArticle($id, $title, $content);
                 if ($result) {
