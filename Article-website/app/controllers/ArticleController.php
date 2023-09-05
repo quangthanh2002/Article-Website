@@ -1,86 +1,72 @@
 <?php
+include '../services/ArticleServices.php';
 class ArticleController
 {
-    private $articleService;
-
-    public function __construct(ArticleService $articleService)
-    {
-        $this->articleService = $articleService;
-    }
-
     public function index()
     {
-        
-        $articles = $this->articleService->getAllArticles();
-
-        $viewData = [
-            'articles' => $articles
-        ];
-        $this->renderView('article/index', $viewData);
+        $articleService = new ArticleService();
+        $articles = $articleService->getAllArticle();
+        include '../views/article/show.php';
     }
 
-    public function create()
+    public function addArticleController()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $title = $_POST['title'];
-            $content = $_POST['content'];
-
-            
-            $this->articleService->createArticle($title, $content);
-
-            
-            header('Location: /articles');
-            exit();
+        $articleService = new ArticleService();
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id = $_POST['txtId'];
+            $title = $_POST['txttitle'];
+            $content = $_POST['txtContent'];
+            if (!empty($id) && !empty($title) && !empty($content)) {
+                $result = $articleService->addArticle($id, $title, $content);
+                if ($result) {
+                    header('location:index.php');
+                } else {
+                    echo 'error';
+                }
+            }
         }
-
-        
-        $this->renderView('article/create');
+        include '../views/article/add.php';
     }
 
-    public function edit($id)
+    public function editArticleController()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $title = $_POST['title'];
-            $content = $_POST['content'];
-
-            $this->articleService->updateArticle($id, $title, $content);
-
-        
-            header('Location: /articles');
-            exit();
+        $articleService = new ArticleService();
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
         }
+        $article = $articleService->findArticleId($id);
 
-       
-        $article = $this->articleService->getArticleById($id);
-
-        if ($article) {
-            
-            $viewData = [
-                'article' => $article
-            ];
-            $this->renderView('article/edit', $viewData);
-        } else {
-            
-            echo 'Article not found';
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $id = $_POST['txtId'];
+            $title = $_POST['txtTitle'];
+            $content = $_POST['txtContent'];
+            if (!empty($title) && !empty($content)) {
+                $result = $articleService->editArticle($id, $title, $content);
+                if ($result) {
+                    header('location:index.php');
+                } else {
+                    echo 'error';
+                }
+            }
         }
+        include '../views/article/edit.php';
     }
 
-    public function delete($id)
+    public function deleteArticleController()
     {
-       
-        $this->articleService->deleteArticle($id);
-
-        header('Location: /articles');
-        exit();
-    }
-
-    private function renderView($viewName, $data = [])
-    {
-        
-        $viewFile = 'views/' . $viewName . '.php';
-        if (file_exists($viewFile)) {
-            extract($data);
-            require $viewFile;
+        $articleService = new ArticleService();
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
         }
+        $article = $articleService->findArticleId($id);
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $result = $articleService->deleteArticle($_GET['id']);
+            if ($result) {
+                header('location:index.php');
+            } else {
+                echo 'error';
+            }
+        }
+        include '../views/article/delete.php';
     }
 }

@@ -1,47 +1,88 @@
 <?php
-class ArticleService {
-    private $db;
+include '../config/DBConnection.php';
+include '../models/Article.php';
+class ArticleService
+{
+    public function getAllArticle()
+    {
+        $dbConn = new DBConnection();
+        $conn = $dbConn->getConnection();
 
-    public function __construct($db) {
-        $this->db = $db;
+        $sql = 'SELECT * FROM article';
+        $stmt = $conn->query($sql);
+
+        $articles = [];
+        while ($row = $stmt->fetch()) {
+            $article = new Article($row['id'], $row['title'], $row['content']);
+            array_push($articles, $article);
+        }
+        return $articles;
     }
 
-    public function getAllArticles() {
-        $query = 'SELECT * FROM articles';
-        $stmt = $this->db->query($query);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    public function findArticleId($id)
+    {
+        $dbConn = new DBConnection();
+        $conn = $dbConn->getConnection();
 
-    public function getArticleById($id) {
-        $query = 'SELECT * FROM articles WHERE id = :id';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $id);
+        $sql = 'SELECT * FROM article WHERE id = :id';
+        $stmt = $conn->prepare($sql);
+        $stmt->bindvalue('id', $id);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $row = $stmt->fetch();
+        $article = new Article($row['id'], $row['title'], $row['content']);
+        return $article;
     }
 
-    public function createArticle($title, $content) {
-        $query = 'INSERT INTO articles (title, content) VALUES (:title, :content)';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':content', $content);
-        $stmt->execute();
-        return $this->db->lastInsertId();
+    public function addArticle($id, $title, $content)
+    {
+        $dbConn = new DBConnection();
+        $conn = $dbConn->getConnection();
+        $sql = 'INSERT INTO article (id, title, content) VALUES(:id, :title, :content)';
+        $stmt = $conn->prepare($sql);
+        $stmt->bindvalue('id', $id);
+        $stmt->bindvalue('title', $title);
+        $stmt->bindvalue('content', $content);
+        $result = $stmt->execute();
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public function updateArticle($id, $title, $content) {
-        $query = 'UPDATE articles SET title = :title, content = :content WHERE id = :id';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->bindParam(':title', $title);
-        $stmt->bindParam(':content', $content);
-        return $stmt->execute();
+    public function editArticle($id, $title, $content)
+    {
+        $dbConn = new DBConnection();
+        $conn = $dbConn->getConnection();
+
+        $sql = 'UPDATE article SET title = :title, content = :content WHERE id = :id';
+        $stmt = $conn->prepare($sql);
+        $stmt->bindvalue('id', $id);
+        $stmt->bindvalue('title', $title);
+        $stmt->bindvalue('content', $content);
+        $result = $stmt->execute();
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    public function deleteArticle($id) {
-        $query = 'DELETE FROM articles WHERE id = :id';
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':id', $id);
-        return $stmt->execute();
+    public function deleteArticle($id)
+    {
+        $dbConn = new DBConnection();
+        $conn = $dbConn->getConnection();
+
+        $sql = 'DELETE FROM tacgia WHERE ma_tgia = :id';
+        $stmt = $conn->prepare($sql);
+        $stmt->bindvalue('id', $id, PDO::PARAM_INT);
+        $result = $stmt->execute();
+        if ($result) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
+
